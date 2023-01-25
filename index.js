@@ -10,5 +10,19 @@ const io = socketIO(server, {
 });
 
 const messages = [
-  { id: uniqid(), author: 'server', text: 'welcome to WildChat' },
+  { id: uniqid(), author: 'server', text: 'welcome to Socket Chat' },
 ];
+
+io.on('connect', (socket) => {
+  console.log('user connected');
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+  socket.emit('initialMessageList', messages);
+  socket.on('messageFromClient', (messageTextAndAuthor) => {
+    const newMessage = { id: uniqid(), ...messageTextAndAuthor };
+    console.log('new message from a client: ', newMessage);
+    messages = [...messages, newMessage];
+    io.emit('allMessages', messages);
+  });
+});
